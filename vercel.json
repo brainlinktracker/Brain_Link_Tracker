@@ -23,6 +23,10 @@
       "dest": "/api/index.py"
     },
     {
+      "src": "/track/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "/link-tracker-dashboard/$1"
     }

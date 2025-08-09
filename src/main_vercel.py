@@ -934,3 +934,72 @@ def get_campaigns():
         return jsonify({'success': False, 'error': 'Failed to fetch campaigns'}), 500
 
 
+
+@app.route('/track/click/<tracking_token>')
+def track_click(tracking_token):
+    """Handle tracking link clicks and redirect to original URL"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get the tracking link details
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("""
+                SELECT original_url, click_count, link_status, redirect_delay
+                FROM tracking_links 
+                WHERE tracking_token = %s AND link_status = 'active'
+            """, (tracking_token,))
+        else:
+            cursor.execute("""
+                SELECT original_url, click_count, link_status, redirect_delay
+                FROM tracking_links 
+                WHERE tracking_token = ? AND link_status = 'active'
+            """, (tracking_token,))
+        
+        link_data = cursor.fetchone()
+        
+        if not link_data:
+            cursor.close()
+            conn.close()
+            return "Tracking link not found or expired", 404
+        
+        original_url, click_count, link_status, redirect_delay = link_data
+        
+        # Update click count and last clicked timestamp
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("""
+                UPDATE tracking_links 
+                SET click_count = click_count + 1, last_clicked = CURRENT_TIMESTAMP
+                WHERE tracking_token = %s
+            """, (tracking_token,))
+        else:
+            cursor.execute("""
+                UPDATE tracking_links 
+                SET click_count = click_count + 1, last_clicked = datetime('now')
+                WHERE tracking_token = ?
+            """, (tracking_token,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        # Ensure the URL has a protocol
+        if not original_url.startswith(('http://', 'https://')):
+            original_url = 'https://' + original_url
+        
+        # Apply redirect delay if specified
+        redirect_delay = redirect_delay or 0
+        if redirect_delay > 0:
+            time.sleep(redirect_delay)
+        
+        # Redirect to the original URL
+        return redirect(original_url, code=302)
+        
+    except Exception as e:
+        print(f"Track click error: {e}")
+        return "Error processing tracking link", 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+

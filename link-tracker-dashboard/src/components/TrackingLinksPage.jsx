@@ -39,7 +39,7 @@ const TrackingLinksPage = () => {
   const fetchTrackingLinks = async () => {
     try {
       setLoading(true)
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/tracking-links')
+      const response = await fetch('/api/tracking-links')
       const data = await response.json()
       
       if (data.success) {
@@ -64,7 +64,7 @@ const TrackingLinksPage = () => {
 
     try {
       setCreating(true)
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/tracking-links', {
+      const response = await fetch('/api/tracking-links', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

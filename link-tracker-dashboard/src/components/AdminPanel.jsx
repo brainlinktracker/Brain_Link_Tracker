@@ -20,7 +20,7 @@ const AdminPanel = ({ user, token }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/admin/users', {
+      const response = await fetch('/api/admin/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -41,7 +41,7 @@ const AdminPanel = ({ user, token }) => {
 
   const approveUser = async (userId) => {
     try {
-      const response = await fetch(`https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/admin/users/${userId}/approve`, {
+      const response = await fetch(`/api/admin/users/${userId}/approve`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -61,7 +61,7 @@ const AdminPanel = ({ user, token }) => {
 
   const updateUserRole = async (userId, role) => {
     try {
-      const response = await fetch(`https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/admin/users/${userId}/role`, {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -43,7 +43,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const fetchCampaigns = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns', {
+      const response = await fetch('/api/campaigns', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -63,8 +63,8 @@ const MemberDashboard = ({ user, token }) => {
   const fetchTrackingLinks = async (campaignId = null) => {
     try {
       const url = campaignId 
-        ? `https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns/${campaignId}/tracking-links`
-        : 'https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/tracking-links';
+        ? `/api/campaigns/${campaignId}/tracking-links`
+        : '/api/tracking-links';
         
       const response = await fetch(url, {
         headers: {
@@ -87,7 +87,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/analytics', {
+      const response = await fetch('/api/analytics', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -104,7 +104,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const createCampaign = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns', {
+      const response = await fetch('/api/campaigns', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const createTrackingLink = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/tracking-links', {
+      const response = await fetch('/api/tracking-links', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ const MemberDashboard = ({ user, token }) => {
   const toggleCampaignStatus = async (campaignId, currentStatus) => {
     try {
       const newStatus = currentStatus === 'active' ? 'paused' : 'active';
-      const response = await fetch(`https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns/${campaignId}/status`, {
+      const response = await fetch(`/api/campaigns/${campaignId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ const MemberDashboard = ({ user, token }) => {
     }
 
     try {
-      const response = await fetch(`https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns/${campaignId}`, {
+      const response = await fetch(`/api/campaigns/${campaignId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -613,8 +613,8 @@ const MemberDashboard = ({ user, token }) => {
               <TableBody>
                 {filteredLinks.map((link) => {
                   const campaign = campaigns.find(c => c.id === link.campaign_id);
-                  const trackingUrl = `https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/track/click/${link.tracking_token}`;
-                  const pixelUrl = `https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/track/pixel/${link.tracking_token}`;
+                  const trackingUrl = `https://brain-link-tracker-zeta.vercel.app/track/click/${link.tracking_token}`;
+                  const pixelUrl = `https://brain-link-tracker-zeta.vercel.app/track/pixel/${link.tracking_token}`;
                   
                   return (
                     <TableRow key={link.id}>

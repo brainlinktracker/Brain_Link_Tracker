@@ -84,7 +84,7 @@ const Admin2Dashboard = ({ user, token }) => {
 
   const updateUserRole = async (userId, role) => {
     try {
-      const response = await fetch(`https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/admin/users/${userId}/role`, {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

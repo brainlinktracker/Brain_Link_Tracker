@@ -36,7 +36,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const fetchCampaigns = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns', {
+      const response = await fetch('/api/campaigns', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -55,7 +55,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const fetchTrackingLinks = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/tracking-links', {
+      const response = await fetch('/api/tracking-links', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -76,7 +76,7 @@ const MemberDashboard = ({ user, token }) => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/analytics', {
+      const response = await fetch('/api/analytics', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -98,7 +98,7 @@ const MemberDashboard = ({ user, token }) => {
     }
 
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/campaigns', {
+      const response = await fetch('/api/campaigns', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -127,7 +127,7 @@ const MemberDashboard = ({ user, token }) => {
     }
 
     try {
-      const response = await fetch('https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/api/tracking-links', {
+      const response = await fetch('/api/tracking-links', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -496,7 +496,7 @@ const MemberDashboard = ({ user, token }) => {
               <TableBody>
                 {trackingLinks.map((link) => {
                   const campaign = campaigns.find(c => c.id === link.campaign_id);
-                  const trackingUrl = `https://5000-i3axerqweb415mh7wgsgs-15aa9b1c.manus.computer/track/click/${link.tracking_token}`;
+                  const trackingUrl = `https://brain-link-tracker-zeta.vercel.app/track/click/${link.tracking_token}`;
                   
                   return (
                     <TableRow key={link.id}>

@@ -39,7 +39,7 @@ app.config['SECRET_KEY'] = SECRET_KEY
 
 # Database configuration
 if DATABASE_TYPE == "postgresql":
-    DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_WMUsnaL7o3Zp@ep-noisy-recipe-ady497ac-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+    DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_0y9XMKzHCBsN@ep-blue-resonance-add39g5q-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 else:
     DATABASE_PATH = os.path.join(os.path.dirname(__file__), "database", "app.db")
 

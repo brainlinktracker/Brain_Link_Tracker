@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-const TrackingLinksPage = () => {
+const TrackingLinksPage = ({ user, token }) => {
   const [trackingLinks, setTrackingLinks] = useState([])
   const [loading, setLoading] = useState(true)
   const [newUrl, setNewUrl] = useState('')
@@ -39,7 +39,12 @@ const TrackingLinksPage = () => {
   const fetchTrackingLinks = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/tracking-links')
+      const response = await fetch('/api/tracking-links', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
       const data = await response.json()
       
       if (data.success) {
@@ -67,11 +72,12 @@ const TrackingLinksPage = () => {
       const response = await fetch('/api/tracking-links', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          original_url: newUrl,
-          recipient_email: newEmail,
+          url: newUrl,
+          email: newEmail,
           campaign_name: newCampaign || 'Default Campaign'
         })
       })

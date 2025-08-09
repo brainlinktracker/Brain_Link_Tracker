@@ -829,6 +829,7 @@ def create_tracking_link():
         original_url = data['url']
         campaign_name = data.get('campaign_name', '')
         recipient_email = data.get('email', '')
+        user_id = request.current_user['id']  # Get user ID from authenticated user
         
         # Generate a unique tracking token
         import secrets
@@ -839,16 +840,16 @@ def create_tracking_link():
         
         if DATABASE_TYPE == "postgresql":
             cursor.execute("""
-                INSERT INTO tracking_links (original_url, tracking_token, recipient_email, created_at, link_status)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO tracking_links (user_id, original_url, tracking_token, recipient_email, created_at, link_status)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING id
-            """, (original_url, tracking_token, recipient_email, datetime.now(), 'active'))
+            """, (user_id, original_url, tracking_token, recipient_email, datetime.now(), 'active'))
             link_id = cursor.fetchone()[0]
         else:
             cursor.execute("""
-                INSERT INTO tracking_links (original_url, tracking_token, recipient_email, created_at, link_status)
-                VALUES (?, ?, ?, ?, ?)
-            """, (original_url, tracking_token, recipient_email, datetime.now().isoformat(), 'active'))
+                INSERT INTO tracking_links (user_id, original_url, tracking_token, recipient_email, created_at, link_status)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (user_id, original_url, tracking_token, recipient_email, datetime.now().isoformat(), 'active'))
             link_id = cursor.lastrowid
         
         conn.commit()

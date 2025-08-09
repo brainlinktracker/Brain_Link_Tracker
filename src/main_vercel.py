@@ -777,15 +777,15 @@ def get_tracking_links():
         
         if DATABASE_TYPE == "postgresql":
             cursor.execute("""
-                SELECT id, original_url, tracking_token, campaign_name, recipient_email, 
-                       created_at, click_count, status 
+                SELECT id, original_url, tracking_token, recipient_email, 
+                       created_at, click_count, link_status 
                 FROM tracking_links 
                 ORDER BY created_at DESC
             """)
         else:
             cursor.execute("""
-                SELECT id, original_url, tracking_token, campaign_name, recipient_email, 
-                       created_at, click_count, status 
+                SELECT id, original_url, tracking_token, recipient_email, 
+                       created_at, click_count, link_status 
                 FROM tracking_links 
                 ORDER BY created_at DESC
             """)
@@ -800,11 +800,11 @@ def get_tracking_links():
                 'id': link[0],
                 'original_url': link[1],
                 'tracking_token': link[2],
-                'campaign_name': link[3],
-                'recipient_email': link[4],
-                'created_at': link[5],
-                'click_count': link[6] if len(link) > 6 else 0,
-                'status': link[7] if len(link) > 7 else 'active'
+                'recipient_email': link[3],
+                'created_at': link[4],
+                'click_count': link[5] if len(link) > 5 else 0,
+                'status': link[6] if len(link) > 6 else 'active',
+                'campaign_name': 'Default Campaign'  # Default since not in schema
             })
         
         return jsonify({
@@ -839,16 +839,16 @@ def create_tracking_link():
         
         if DATABASE_TYPE == "postgresql":
             cursor.execute("""
-                INSERT INTO tracking_links (original_url, tracking_token, campaign_name, recipient_email, created_at, status)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO tracking_links (original_url, tracking_token, recipient_email, created_at, link_status)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id
-            """, (original_url, tracking_token, campaign_name, recipient_email, datetime.now(), 'active'))
+            """, (original_url, tracking_token, recipient_email, datetime.now(), 'active'))
             link_id = cursor.fetchone()[0]
         else:
             cursor.execute("""
-                INSERT INTO tracking_links (original_url, tracking_token, campaign_name, recipient_email, created_at, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (original_url, tracking_token, campaign_name, recipient_email, datetime.now().isoformat(), 'active'))
+                INSERT INTO tracking_links (original_url, tracking_token, recipient_email, created_at, link_status)
+                VALUES (?, ?, ?, ?, ?)
+            """, (original_url, tracking_token, recipient_email, datetime.now().isoformat(), 'active'))
             link_id = cursor.lastrowid
         
         conn.commit()

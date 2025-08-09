@@ -387,6 +387,47 @@ def health_check():
         'database': DATABASE_TYPE
     })
 
+@app.route('/api/debug')
+def debug_info():
+    """Debug endpoint to check database connection and user count"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check user count
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("SELECT COUNT(*) FROM users")
+        else:
+            cursor.execute("SELECT COUNT(*) FROM users")
+        
+        user_count = cursor.fetchone()[0]
+        
+        # Check if Brain user exists
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("SELECT username, role, status FROM users WHERE username = %s", ("Brain",))
+        else:
+            cursor.execute("SELECT username, role, status FROM users WHERE username = ?", ("Brain",))
+        
+        brain_user = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'database_type': DATABASE_TYPE,
+            'database_url_set': 'DATABASE_URL' in os.environ,
+            'user_count': user_count,
+            'brain_user_exists': brain_user is not None,
+            'brain_user_info': brain_user if brain_user else None
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'database_type': DATABASE_TYPE,
+            'database_url_set': 'DATABASE_URL' in os.environ
+        }), 500
+
 # Authentication endpoints
 @app.route('/api/auth/login', methods=['POST'])
 def login():

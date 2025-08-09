@@ -142,8 +142,8 @@ const TrackingLinksPage = ({ user, token }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="sm:col-span-2">
               <Input
                 placeholder="Enter your campaign URL (e.g., https://example.com)"
                 value={newUrl}
@@ -168,14 +168,14 @@ const TrackingLinksPage = ({ user, token }) => {
               />
             </div>
           </div>
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 space-y-3 sm:space-y-0">
             <div className="text-sm text-muted-foreground">
               Your tracking link will be protected against bots, social media crawlers, and security scanners.
             </div>
             <Button 
               onClick={createTrackingLink} 
               disabled={creating || !newUrl.trim()}
-              className="ml-4"
+              className="w-full sm:w-auto"
             >
               {creating ? (
                 <>
@@ -196,7 +196,7 @@ const TrackingLinksPage = ({ user, token }) => {
       {/* Tracking Links Table */}
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
             <div>
               <CardTitle className="flex items-center space-x-2">
                 <Link className="h-5 w-5" />
@@ -206,19 +206,19 @@ const TrackingLinksPage = ({ user, token }) => {
                 Manage and monitor all your tracking links
               </CardDescription>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search links..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-64"
+                  className="pl-9 w-full sm:w-64"
                 />
               </div>
-              <Button variant="outline" onClick={fetchTrackingLinks}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+              <Button variant="outline" onClick={fetchTrackingLinks} className="w-full sm:w-auto">
+                <RefreshCw className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
             </div>
           </div>

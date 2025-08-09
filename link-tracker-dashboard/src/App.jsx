@@ -100,30 +100,32 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-3 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <Link className="h-8 w-8 text-blue-400" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Link className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
               <div>
-                <h1 className="text-3xl font-bold text-white">Brain Link Tracker</h1>
-                <p className="text-slate-300">Advanced Analytics Dashboard</p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Brain Link Tracker</h1>
+                <p className="text-sm sm:text-base text-slate-300">Advanced Analytics Dashboard</p>
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-right">
-              <p className="text-white font-medium">{user.username}</p>
-              <Badge className={`${getRoleBadgeColor(user.role)} text-white`}>
-                {user.role === 'admin' && <Crown className="h-3 w-3 mr-1" />}
-                {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-              </Badge>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+            <div className="flex items-center space-x-3 sm:text-right">
+              <div>
+                <p className="text-white font-medium text-sm sm:text-base">{user.username}</p>
+                <Badge className={`${getRoleBadgeColor(user.role)} text-white text-xs`}>
+                  {user.role === 'admin' && <Crown className="h-3 w-3 mr-1" />}
+                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                </Badge>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="min-w-[80px]">
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
           </div>
         </div>
 
@@ -138,48 +140,50 @@ function App() {
           <IndividualDashboard user={user} token={token} />
         ) : (
           <div className="bg-white rounded-lg shadow-lg">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-4">
-                  <h2 className="text-2xl font-bold text-gray-800">Advanced Analytics</h2>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <div className="p-3 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Advanced Analytics</h2>
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs sm:text-sm w-fit">
                     Last updated: {analytics ? new Date().toLocaleTimeString() : 'Loading...'}
                   </Badge>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={fetchAnalytics}>
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Refresh
+                <div className="flex flex-wrap gap-2 sm:space-x-2">
+                  <Button variant="outline" size="sm" onClick={fetchAnalytics} className="flex-1 sm:flex-none min-w-[80px]">
+                    <RefreshCw className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Refresh</span>
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
+                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none min-w-[80px]">
+                    <Download className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Export</span>
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-10 sm:w-auto">
                     <Settings className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
               <Tabs defaultValue="analytics" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
-                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                  <TabsTrigger value="tracking-links">Tracking Links</TabsTrigger>
-                  {(user.role === 'admin' || user.role === 'admin2') && (
-                    <TabsTrigger value="admin">
-                      {user.role === 'admin' ? 'User Management' : 'Team Management'}
-                    </TabsTrigger>
-                  )}
-                  <TabsTrigger value="security">Security</TabsTrigger>
-                  <TabsTrigger value="geography">Geography</TabsTrigger>
-                  <TabsTrigger value="live-activity">Live Activity</TabsTrigger>
-                </TabsList>
+                <div className="overflow-x-auto">
+                  <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full min-w-[600px] sm:min-w-0">
+                    <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
+                    <TabsTrigger value="tracking-links" className="text-xs sm:text-sm">Tracking Links</TabsTrigger>
+                    {(user.role === 'admin' || user.role === 'admin2') && (
+                      <TabsTrigger value="admin" className="text-xs sm:text-sm">
+                        {user.role === 'admin' ? 'User Management' : 'Team Management'}
+                      </TabsTrigger>
+                    )}
+                    <TabsTrigger value="security" className="text-xs sm:text-sm">Security</TabsTrigger>
+                    <TabsTrigger value="geography" className="text-xs sm:text-sm">Geography</TabsTrigger>
+                    <TabsTrigger value="live-activity" className="text-xs sm:text-sm">Live Activity</TabsTrigger>
+                  </TabsList>
+                </div>
 
               <TabsContent value="analytics" className="space-y-6">
                 {analytics ? (
                   <>
                     {/* Overview Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
                       <Card>
                         <CardContent className="p-4">
                           <div className="flex items-center space-x-2">

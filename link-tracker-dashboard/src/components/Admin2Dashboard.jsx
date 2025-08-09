@@ -147,19 +147,19 @@ const Admin2Dashboard = ({ user, token }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold">Business Management Dashboard</h2>
-          <p className="text-muted-foreground">Manage your team and monitor performance</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Business Management Dashboard</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your team and monitor performance</p>
         </div>
-        <Badge className="bg-orange-500 text-white">
+        <Badge className="bg-orange-500 text-white w-fit">
           <Shield className="h-3 w-3 mr-1" />
           Admin 2 - Business Manager
         </Badge>
       </div>
 
       {/* Overview Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -212,7 +212,7 @@ const Admin2Dashboard = ({ user, token }) => {
 
       {/* Performance Analytics */}
       {analytics && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">

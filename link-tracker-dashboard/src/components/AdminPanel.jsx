@@ -124,15 +124,15 @@ const AdminPanel = ({ user, token }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold">User Management</h2>
-          <p className="text-muted-foreground">Manage user accounts and permissions</p>
+          <h2 className="text-xl sm:text-2xl font-bold">User Management</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage user accounts and permissions</p>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">

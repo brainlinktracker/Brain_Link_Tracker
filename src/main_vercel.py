@@ -766,3 +766,170 @@ def get_analytics():
         print(f"Analytics error: {e}")
         return jsonify({'error': 'Failed to fetch analytics'}), 500
 
+
+@app.route('/api/tracking-links', methods=['GET'])
+@require_auth
+def get_tracking_links():
+    """Get all tracking links for the authenticated user"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("""
+                SELECT id, original_url, tracking_token, campaign_name, recipient_email, 
+                       created_at, click_count, status 
+                FROM tracking_links 
+                ORDER BY created_at DESC
+            """)
+        else:
+            cursor.execute("""
+                SELECT id, original_url, tracking_token, campaign_name, recipient_email, 
+                       created_at, click_count, status 
+                FROM tracking_links 
+                ORDER BY created_at DESC
+            """)
+        
+        links = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        tracking_links = []
+        for link in links:
+            tracking_links.append({
+                'id': link[0],
+                'original_url': link[1],
+                'tracking_token': link[2],
+                'campaign_name': link[3],
+                'recipient_email': link[4],
+                'created_at': link[5],
+                'click_count': link[6] if len(link) > 6 else 0,
+                'status': link[7] if len(link) > 7 else 'active'
+            })
+        
+        return jsonify({
+            'success': True,
+            'tracking_links': tracking_links
+        })
+        
+    except Exception as e:
+        print(f"Get tracking links error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch tracking links'}), 500
+
+@app.route('/api/tracking-links', methods=['POST'])
+@require_auth
+def create_tracking_link():
+    """Create a new tracking link"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'url' not in data:
+            return jsonify({'success': False, 'error': 'URL is required'}), 400
+        
+        original_url = data['url']
+        campaign_name = data.get('campaign_name', '')
+        recipient_email = data.get('email', '')
+        
+        # Generate a unique tracking token
+        import secrets
+        tracking_token = secrets.token_urlsafe(16)
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("""
+                INSERT INTO tracking_links (original_url, tracking_token, campaign_name, recipient_email, created_at, status)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id
+            """, (original_url, tracking_token, campaign_name, recipient_email, datetime.now(), 'active'))
+            link_id = cursor.fetchone()[0]
+        else:
+            cursor.execute("""
+                INSERT INTO tracking_links (original_url, tracking_token, campaign_name, recipient_email, created_at, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (original_url, tracking_token, campaign_name, recipient_email, datetime.now().isoformat(), 'active'))
+            link_id = cursor.lastrowid
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        # Generate the tracking URL
+        tracking_url = f"https://brain-link-tracker-zeta.vercel.app/track/click/{tracking_token}"
+        
+        return jsonify({
+            'success': True,
+            'tracking_link': {
+                'id': link_id,
+                'original_url': original_url,
+                'tracking_token': tracking_token,
+                'tracking_url': tracking_url,
+                'campaign_name': campaign_name,
+                'recipient_email': recipient_email,
+                'created_at': datetime.now().isoformat(),
+                'status': 'active'
+            }
+        })
+        
+    except Exception as e:
+        print(f"Create tracking link error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to create tracking link'}), 500
+
+@app.route('/api/admin/users', methods=['GET'])
+@require_auth
+def get_admin_users():
+    """Get all users for admin management (alias for /api/users)"""
+    return get_users()
+
+@app.route('/api/campaigns', methods=['GET'])
+@require_auth
+def get_campaigns():
+    """Get all campaigns"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get unique campaigns from tracking_links
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("""
+                SELECT DISTINCT campaign_name, COUNT(*) as link_count,
+                       MIN(created_at) as created_at
+                FROM tracking_links 
+                WHERE campaign_name IS NOT NULL AND campaign_name != ''
+                GROUP BY campaign_name
+                ORDER BY created_at DESC
+            """)
+        else:
+            cursor.execute("""
+                SELECT DISTINCT campaign_name, COUNT(*) as link_count,
+                       MIN(created_at) as created_at
+                FROM tracking_links 
+                WHERE campaign_name IS NOT NULL AND campaign_name != ''
+                GROUP BY campaign_name
+                ORDER BY created_at DESC
+            """)
+        
+        campaigns = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        campaign_list = []
+        for campaign in campaigns:
+            campaign_list.append({
+                'name': campaign[0],
+                'link_count': campaign[1],
+                'created_at': campaign[2],
+                'status': 'active'
+            })
+        
+        return jsonify({
+            'success': True,
+            'campaigns': campaign_list
+        })
+        
+    except Exception as e:
+        print(f"Get campaigns error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch campaigns'}), 500
+
+

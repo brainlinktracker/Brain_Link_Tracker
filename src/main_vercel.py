@@ -33,7 +33,6 @@ except ImportError:
 app = Flask(__name__, static_folder='static')
 CORS(app, origins="*")
 
-# Configuration
 SECRET_KEY = os.environ.get("SECRET_KEY", "sB7u2!fX9#Lp4qZwRvT8&NzM6@eKyC1")
 app.config['SECRET_KEY'] = SECRET_KEY
 

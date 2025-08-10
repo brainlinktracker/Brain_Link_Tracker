@@ -1094,3 +1094,20 @@ def get_tracking_events():
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 
+
+
+@app.route("/api/debug_auth")
+def debug_auth():
+    secret_key_read = app.config["SECRET_KEY"]
+    test_password = "testpassword"
+    hashed_password = bcrypt.hashpw(test_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    is_correct = bcrypt.checkpw(test_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    
+    return jsonify({
+        "secret_key_read": secret_key_read,
+        "test_password_hashed": hashed_password,
+        "bcrypt_check_result": is_correct,
+        "bcrypt_version": bcrypt.__version__
+    })
+
+

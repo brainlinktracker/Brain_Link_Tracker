@@ -778,14 +778,18 @@ def get_tracking_links():
         if DATABASE_TYPE == "postgresql":
             cursor.execute("""
                 SELECT id, original_url, tracking_token, recipient_email, 
-                       created_at, click_count, link_status 
+                       created_at, click_count, link_status, 
+                       'https://brain-link-tracker-zeta.vercel.app/track/click/' || tracking_token AS tracking_url,
+                       'https://brain-link-tracker-zeta.vercel.app/pixel/' || tracking_token AS pixel_url
                 FROM tracking_links 
                 ORDER BY created_at DESC
             """)
         else:
             cursor.execute("""
                 SELECT id, original_url, tracking_token, recipient_email, 
-                       created_at, click_count, link_status 
+                       created_at, click_count, link_status, 
+                       'https://brain-link-tracker-zeta.vercel.app/track/click/' || tracking_token AS tracking_url,
+                       'https://brain-link-tracker-zeta.vercel.app/pixel/' || tracking_token AS pixel_url
                 FROM tracking_links 
                 ORDER BY created_at DESC
             """)

@@ -1009,7 +1009,7 @@ def track_click(tracking_token):
         return "Error processing tracking link", 500
 
 
-@app.route('/api/tracking-events', methods=['GET'])
+
 @require_auth
 def get_tracking_events():
     """Get detailed tracking events for all tracking links"""

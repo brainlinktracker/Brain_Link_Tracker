@@ -34,7 +34,7 @@ app = Flask(__name__, static_folder='static')
 CORS(app, origins="*")
 
 # Configuration
-SECRET_KEY = os.environ.get("SECRET_KEY", "7th-brain-advanced-link-tracker-secret-2024")
+SECRET_KEY = os.environ.get("SECRET_KEY", "test_secret_key")
 app.config['SECRET_KEY'] = SECRET_KEY
 
 # Database configuration

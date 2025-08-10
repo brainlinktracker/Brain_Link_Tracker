@@ -164,18 +164,18 @@ function App() {
               </div>
 
               <Tabs defaultValue="analytics" className="w-full">
-                <div className="overflow-x-auto">
-                  <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full min-w-[600px] sm:min-w-0">
-                    <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
-                    <TabsTrigger value="tracking-links" className="text-xs sm:text-sm">Tracking Links</TabsTrigger>
+                <div className="overflow-x-auto scrollbar-hide">
+                  <TabsList className="flex w-max min-w-full sm:grid sm:grid-cols-6 sm:w-full gap-1 p-1">
+                    <TabsTrigger value="analytics" className="text-xs sm:text-sm whitespace-nowrap px-3 py-2 min-w-[80px]">Analytics</TabsTrigger>
+                    <TabsTrigger value="tracking-links" className="text-xs sm:text-sm whitespace-nowrap px-3 py-2 min-w-[100px]">Tracking Links</TabsTrigger>
                     {(user.role === 'admin' || user.role === 'admin2') && (
-                      <TabsTrigger value="admin" className="text-xs sm:text-sm">
+                      <TabsTrigger value="admin" className="text-xs sm:text-sm whitespace-nowrap px-3 py-2 min-w-[120px]">
                         {user.role === 'admin' ? 'User Management' : 'Team Management'}
                       </TabsTrigger>
                     )}
-                    <TabsTrigger value="security" className="text-xs sm:text-sm">Security</TabsTrigger>
-                    <TabsTrigger value="geography" className="text-xs sm:text-sm">Geography</TabsTrigger>
-                    <TabsTrigger value="live-activity" className="text-xs sm:text-sm">Live Activity</TabsTrigger>
+                    <TabsTrigger value="security" className="text-xs sm:text-sm whitespace-nowrap px-3 py-2 min-w-[80px]">Security</TabsTrigger>
+                    <TabsTrigger value="geography" className="text-xs sm:text-sm whitespace-nowrap px-3 py-2 min-w-[90px]">Geography</TabsTrigger>
+                    <TabsTrigger value="live-activity" className="text-xs sm:text-sm whitespace-nowrap px-3 py-2 min-w-[100px]">Live Activity</TabsTrigger>
                   </TabsList>
                 </div>
 

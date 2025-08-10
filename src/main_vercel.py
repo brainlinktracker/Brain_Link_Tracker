@@ -808,7 +808,13 @@ def get_tracking_links():
                 'created_at': link[4],
                 'click_count': link[5] if len(link) > 5 else 0,
                 'status': link[6] if len(link) > 6 else 'active',
-                'campaign_name': 'Default Campaign'  # Default since not in schema
+                'campaign_name': 'Default Campaign',  # Default since not in schema
+                'tracking_url': link[7] if len(link) > 7 else f'https://brain-link-tracker-zeta.vercel.app/track/click/{link[2]}',
+                'pixel_url': link[8] if len(link) > 8 else f'https://brain-link-tracker-zeta.vercel.app/pixel/{link[2]}',
+                'clicks': link[5] if len(link) > 5 else 0,
+                'opens': 0,  # Default value
+                'total_events': 0,  # Default value
+                'is_active': True if (link[6] if len(link) > 6 else 'active') == 'active' else False
             })
         
         return jsonify({

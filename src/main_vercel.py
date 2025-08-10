@@ -766,9 +766,7 @@ def get_analytics():
         return jsonify({'error': 'Failed to fetch analytics'}), 500
 
 
-@app.route('/api/tracking-links', methods=['GET'])
-@require_auth
-def get_tracking_links():
+ing_links():
     """Get all tracking links for the authenticated user"""
     try:
         conn = get_db_connection()

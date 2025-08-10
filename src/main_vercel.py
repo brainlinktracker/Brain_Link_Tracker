@@ -1010,6 +1010,87 @@ def track_click(tracking_token):
         return "Error processing tracking link", 500
 
 
+@app.route('/api/tracking-events', methods=['GET'])
+@require_auth
+def get_tracking_events():
+    """Get detailed tracking events for all tracking links"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get tracking events with link information
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("""
+                SELECT 
+                    te.id,
+                    te.tracking_token,
+                    te.event_type,
+                    te.ip_address::text,
+                    te.user_agent,
+                    te.country,
+                    te.city,
+                    te.timestamp,
+                    te.status,
+                    tl.recipient_email,
+                    tl.original_url,
+                    tl.campaign_name
+                FROM tracking_events te
+                LEFT JOIN tracking_links tl ON te.tracking_token = tl.tracking_token
+                ORDER BY te.timestamp DESC
+                LIMIT 100
+            """)
+        else:
+            cursor.execute("""
+                SELECT 
+                    te.id,
+                    te.tracking_token,
+                    te.event_type,
+                    te.ip_address,
+                    te.user_agent,
+                    te.country,
+                    te.city,
+                    te.timestamp,
+                    te.status,
+                    tl.recipient_email,
+                    tl.original_url,
+                    tl.campaign_name
+                FROM tracking_events te
+                LEFT JOIN tracking_links tl ON te.tracking_token = tl.tracking_token
+                ORDER BY te.timestamp DESC
+                LIMIT 100
+            """)
+        
+        events = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        tracking_events = []
+        for event in events:
+            tracking_events.append({
+                'id': event[0],
+                'tracking_id': event[1],
+                'event_type': event[2],
+                'ip_address': event[3],
+                'user_agent': event[4],
+                'country': event[5] or 'Unknown',
+                'city': event[6] or 'Unknown',
+                'timestamp': event[7],
+                'status': event[8] or 'processed',
+                'email': event[9] or 'N/A',
+                'original_url': event[10],
+                'campaign_name': event[11] or 'Default Campaign'
+            })
+        
+        return jsonify({
+            'success': True,
+            'events': tracking_events
+        })
+        
+    except Exception as e:
+        print(f"Get tracking events error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch tracking events'}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 

@@ -28,12 +28,15 @@ import { toast } from 'sonner'
 
 const TrackingLinksPage = ({ user, token }) => {
   const [trackingLinks, setTrackingLinks] = useState([])
+  const [trackingEvents, setTrackingEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [eventsLoading, setEventsLoading] = useState(true)
   const [newUrl, setNewUrl] = useState('')
   const [newEmail, setNewEmail] = useState('')
   const [newCampaign, setNewCampaign] = useState('')
   const [creating, setCreating] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [eventsSearchTerm, setEventsSearchTerm] = useState('')
 
   // Fetch tracking links from API
   const fetchTrackingLinks = async () => {
@@ -57,6 +60,32 @@ const TrackingLinksPage = ({ user, token }) => {
       toast.error('Failed to load tracking links')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Fetch tracking events from API
+  const fetchTrackingEvents = async () => {
+    try {
+      setEventsLoading(true)
+      const response = await fetch('/api/tracking-events', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        setTrackingEvents(data.events || [])
+      } else {
+        console.error('Failed to fetch tracking events:', data.error)
+        toast.error('Failed to fetch tracking events')
+      }
+    } catch (error) {
+      console.error('Error fetching tracking events:', error)
+      toast.error('Error fetching tracking events')
+    } finally {
+      setEventsLoading(false)
     }
   }
 
@@ -124,8 +153,18 @@ const TrackingLinksPage = ({ user, token }) => {
     link.tracking_token.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Filter tracking events based on search term
+  const filteredEvents = trackingEvents.filter(event =>
+    event.tracking_id.toLowerCase().includes(eventsSearchTerm.toLowerCase()) ||
+    event.email.toLowerCase().includes(eventsSearchTerm.toLowerCase()) ||
+    event.ip_address.toLowerCase().includes(eventsSearchTerm.toLowerCase()) ||
+    event.country.toLowerCase().includes(eventsSearchTerm.toLowerCase()) ||
+    event.city.toLowerCase().includes(eventsSearchTerm.toLowerCase())
+  )
+
   useEffect(() => {
     fetchTrackingLinks()
+    fetchTrackingEvents()
   }, [])
 
   return (
@@ -216,7 +255,7 @@ const TrackingLinksPage = ({ user, token }) => {
                   className="pl-9 w-full sm:w-64"
                 />
               </div>
-              <Button variant="outline" onClick={fetchTrackingLinks} className="w-full sm:w-auto">
+              <Button variant="outline" onClick={() => { fetchTrackingLinks(); fetchTrackingEvents(); }} className="w-full sm:w-auto">
                 <RefreshCw className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
@@ -423,6 +462,93 @@ const TrackingLinksPage = ({ user, token }) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Activity Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <Activity className="h-5 w-5" />
+                <span>Recent Activity</span>
+              </CardTitle>
+              <CardDescription>
+                Live tracking events with detailed information
+              </CardDescription>
+            </div>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+              <div className="relative">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search events..."
+                  value={eventsSearchTerm}
+                  onChange={(e) => setEventsSearchTerm(e.target.value)}
+                  className="pl-9 w-full sm:w-64"
+                />
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {eventsLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+              Loading tracking events...
+            </div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tracking ID</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>IP Address</TableHead>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>User Agent</TableHead>
+                    <TableHead>Country</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEvents.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        {eventsSearchTerm ? 'No tracking events match your search.' : 'No tracking events found. Events will appear here when users interact with your tracking links.'}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredEvents.map((event) => (
+                      <TableRow key={event.id}>
+                        <TableCell className="font-mono text-sm">
+                          {event.tracking_id}
+                        </TableCell>
+                        <TableCell>{event.email}</TableCell>
+                        <TableCell className="font-mono text-sm">{event.ip_address}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {formatDate(event.timestamp)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="max-w-xs truncate" title={event.user_agent}>
+                            {event.user_agent || 'Unknown'}
+                          </div>
+                        </TableCell>
+                        <TableCell>{event.country}</TableCell>
+                        <TableCell>{event.city}</TableCell>
+                        <TableCell>
+                          <Badge variant={event.status === 'processed' ? "default" : "secondary"}>
+                            {event.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

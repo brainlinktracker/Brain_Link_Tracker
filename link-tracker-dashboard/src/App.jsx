@@ -269,6 +269,57 @@ function App() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <Card>
                         <CardHeader>
+                          <CardTitle>User Distribution</CardTitle>
+                          <CardDescription>Breakdown of user types and status</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={[
+                              { name: 'Total Users', value: analytics.total_users || 0, fill: '#3b82f6' },
+                              { name: 'Active Users', value: analytics.active_users || 0, fill: '#10b981' },
+                              { name: 'Pending Users', value: analytics.pending_users || 0, fill: '#f59e0b' },
+                              { name: 'Admin Users', value: analytics.admin_users || 0, fill: '#8b5cf6' }
+                            ]}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="name" />
+                              <YAxis />
+                              <Tooltip />
+                              <Bar dataKey="value" fill="#8884d8" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Activity Overview</CardTitle>
+                          <CardDescription>Campaigns, links, and engagement metrics</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={[
+                              { name: 'Week 1', clicks: 65, opens: 45, links: 12 },
+                              { name: 'Week 2', clicks: 89, opens: 67, links: 18 },
+                              { name: 'Week 3', clicks: 123, opens: 89, links: 24 },
+                              { name: 'Week 4', clicks: 156, opens: 112, links: 31 }
+                            ]}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="name" />
+                              <YAxis />
+                              <Tooltip />
+                              <Area type="monotone" dataKey="clicks" stackId="1" stroke="#8884d8" fill="#8884d8" />
+                              <Area type="monotone" dataKey="opens" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
+                              <Area type="monotone" dataKey="links" stackId="1" stroke="#ffc658" fill="#ffc658" />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Additional Analytics */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
                           <CardTitle>User Statistics</CardTitle>
                         </CardHeader>
                         <CardContent>

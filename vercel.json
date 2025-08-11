@@ -10,24 +10,18 @@
       }
     },
     {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.11",
-        "env": {
-          "SECRET_KEY": "sB7u2!fX9#Lp4qZwRvT8&NzM6@eKyC1"
-        }
-      }
+      "src": "api/*.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "dest": "api/index.py"
     },
     {
       "src": "/track/(.*)",
-      "dest": "/api/index.py"
+      "dest": "api/index.py"
     },
     {
       "src": "/(.*)",
@@ -35,4 +29,5 @@
     }
   ]
 }
+
 

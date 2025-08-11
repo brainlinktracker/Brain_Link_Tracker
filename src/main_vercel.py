@@ -31,7 +31,7 @@ except ImportError:
     DATABASE_TYPE = "sqlite"
 
 app = Flask(__name__, static_folder='static')
-CORS(app, origins="*")
+CORS(app, origins="*", supports_credentials=True, allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "sB7u2!fX9#Lp4qZwRvT8&NzM6@eKyC1")
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -293,6 +293,31 @@ def init_db():
                 """, ("admin", "admin@brainlinktracker.com", admin_password, "admin", "active"))
             
             print("✅ Default admin user created: admin / admin123")
+        
+        # Check if Brain user exists
+        if DATABASE_TYPE == "postgresql":
+            cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'Brain'")
+        else:
+            cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'Brain'")
+        
+        brain_count = cursor.fetchone()[0]
+        
+        if brain_count == 0:
+            # Create Brain user
+            brain_password = bcrypt.hashpw("Mayflower1!!".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            
+            if DATABASE_TYPE == "postgresql":
+                cursor.execute("""
+                    INSERT INTO users (username, email, password_hash, role, status)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, ("Brain", "brain@brainlinktracker.com", brain_password, "admin", "active"))
+            else:
+                cursor.execute("""
+                    INSERT INTO users (username, email, password_hash, role, status)
+                    VALUES (?, ?, ?, ?, ?)
+                """, ("Brain", "brain@brainlinktracker.com", brain_password, "admin", "active"))
+            
+            print("✅ Brain user created: Brain / Mayflower1!!")
         
         conn.commit()
         cursor.close()
@@ -766,7 +791,7 @@ def get_analytics():
         return jsonify({'error': 'Failed to fetch analytics'}), 500
 
 
-ing_links():
+def get_tracking_links():
     """Get all tracking links for the authenticated user"""
     try:
         conn = get_db_connection()
@@ -776,8 +801,8 @@ ing_links():
             cursor.execute("""
                 SELECT id, original_url, tracking_token, recipient_email, 
                        created_at, click_count, link_status, 
-                       'https://brain-link-tracker-zeta.vercel.app/track/click/' || tracking_token AS tracking_url,
-                       'https://brain-link-tracker-zeta.vercel.app/pixel/' || tracking_token AS pixel_url
+                       f'https://{os.environ.get("VERCEL_URL", "brain-link-tracker-m3gcjt0hk-brains-projects-51b50d80.vercel.app")}/track/click/' || tracking_token AS tracking_url,
+                       f'https://{os.environ.get("VERCEL_URL", "brain-link-tracker-m3gcjt0hk-brains-projects-51b50d80.vercel.app")}/pixel/' || tracking_token AS pixel_url
                 FROM tracking_links 
                 ORDER BY created_at DESC
             """)
@@ -785,8 +810,8 @@ ing_links():
             cursor.execute("""
                 SELECT id, original_url, tracking_token, recipient_email, 
                        created_at, click_count, link_status, 
-                       'https://brain-link-tracker-zeta.vercel.app/track/click/' || tracking_token AS tracking_url,
-                       'https://brain-link-tracker-zeta.vercel.app/pixel/' || tracking_token AS pixel_url
+                       f'https://{os.environ.get("VERCEL_URL", "brain-link-tracker-m3gcjt0hk-brains-projects-51b50d80.vercel.app")}/track/click/' || tracking_token AS tracking_url,
+                       f'https://{os.environ.get("VERCEL_URL", "brain-link-tracker-m3gcjt0hk-brains-projects-51b50d80.vercel.app")}/pixel/' || tracking_token AS pixel_url
                 FROM tracking_links 
                 ORDER BY created_at DESC
             """)
@@ -1091,6 +1116,195 @@ def get_tracking_events():
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 
+
+
+@app.route('/api/tracking-links', methods=['GET'])
+@require_auth
+def get_tracking_links():
+    """Get all tracking links for the authenticated user"""
+    try:
+        user_id = request.current_user['id']
+        user_role = request.current_user['role']
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if user_role == 'admin':
+            # Admin can see all tracking links
+            if DATABASE_TYPE == "postgresql":
+                cursor.execute("""
+                    SELECT tl.id, tl.tracking_token, tl.original_url, tl.recipient_email, 
+                           tl.recipient_name, tl.created_at, tl.click_count, tl.link_status,
+                           c.name as campaign_name, u.username as creator
+                    FROM tracking_links tl
+                    LEFT JOIN campaigns c ON tl.campaign_id = c.id
+                    LEFT JOIN users u ON tl.user_id = u.id
+                    ORDER BY tl.created_at DESC
+                """)
+            else:
+                cursor.execute("""
+                    SELECT tl.id, tl.tracking_token, tl.original_url, tl.recipient_email, 
+                           tl.recipient_name, tl.created_at, tl.click_count, tl.link_status,
+                           c.name as campaign_name, u.username as creator
+                    FROM tracking_links tl
+                    LEFT JOIN campaigns c ON tl.campaign_id = c.id
+                    LEFT JOIN users u ON tl.user_id = u.id
+                    ORDER BY tl.created_at DESC
+                """)
+        else:
+            # Regular users can only see their own tracking links
+            if DATABASE_TYPE == "postgresql":
+                cursor.execute("""
+                    SELECT tl.id, tl.tracking_token, tl.original_url, tl.recipient_email, 
+                           tl.recipient_name, tl.created_at, tl.click_count, tl.link_status,
+                           c.name as campaign_name, u.username as creator
+                    FROM tracking_links tl
+                    LEFT JOIN campaigns c ON tl.campaign_id = c.id
+                    LEFT JOIN users u ON tl.user_id = u.id
+                    WHERE tl.user_id = %s
+                    ORDER BY tl.created_at DESC
+                """, (user_id,))
+            else:
+                cursor.execute("""
+                    SELECT tl.id, tl.tracking_token, tl.original_url, tl.recipient_email, 
+                           tl.recipient_name, tl.created_at, tl.click_count, tl.link_status,
+                           c.name as campaign_name, u.username as creator
+                    FROM tracking_links tl
+                    LEFT JOIN campaigns c ON tl.campaign_id = c.id
+                    LEFT JOIN users u ON tl.user_id = u.id
+                    WHERE tl.user_id = ?
+                    ORDER BY tl.created_at DESC
+                """, (user_id,))
+        
+        links = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        tracking_links = []
+        for link in links:
+            # Generate URLs for the tracking link
+            base_url = request.host_url.rstrip('/')
+            tracking_url = f"{base_url}/track/click/{link[1]}"
+            pixel_url = f"{base_url}/track/pixel/{link[1]}"
+            
+            tracking_links.append({
+                'id': link[0],
+                'tracking_token': link[1],
+                'original_url': link[2],
+                'recipient_email': link[3] or '',
+                'recipient_name': link[4] or '',
+                'created_at': link[5],
+                'clicks': link[6] or 0,
+                'opens': 0,  # Will be calculated from events
+                'total_events': link[6] or 0,
+                'is_active': link[7] == 'active',
+                'campaign_name': link[8] or 'Default Campaign',
+                'creator': link[9] or 'Unknown',
+                'tracking_url': tracking_url,
+                'pixel_url': pixel_url
+            })
+        
+        return jsonify({
+            'success': True,
+            'tracking_links': tracking_links
+        })
+        
+    except Exception as e:
+        print(f"Get tracking links error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch tracking links'}), 500
+
+
+@app.route('/api/tracking-events', methods=['GET'])
+@require_auth
+def get_tracking_events():
+    """Get tracking events for the authenticated user"""
+    try:
+        user_id = request.current_user['id']
+        user_role = request.current_user['role']
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if user_role == 'admin':
+            # Admin can see all events
+            if DATABASE_TYPE == "postgresql":
+                cursor.execute("""
+                    SELECT te.id, te.tracking_token, te.event_type, te.ip_address, 
+                           te.user_agent, te.country, te.city, te.timestamp, te.status,
+                           tl.recipient_email, tl.original_url, c.name as campaign_name
+                    FROM tracking_events te
+                    LEFT JOIN tracking_links tl ON te.tracking_token = tl.tracking_token
+                    LEFT JOIN campaigns c ON te.campaign_id = c.id
+                    ORDER BY te.timestamp DESC
+                    LIMIT 1000
+                """)
+            else:
+                cursor.execute("""
+                    SELECT te.id, te.tracking_token, te.event_type, te.ip_address, 
+                           te.user_agent, te.country, te.city, te.timestamp, te.status,
+                           tl.recipient_email, tl.original_url, c.name as campaign_name
+                    FROM tracking_events te
+                    LEFT JOIN tracking_links tl ON te.tracking_token = tl.tracking_token
+                    LEFT JOIN campaigns c ON te.campaign_id = c.id
+                    ORDER BY te.timestamp DESC
+                    LIMIT 1000
+                """)
+        else:
+            # Regular users can only see their own events
+            if DATABASE_TYPE == "postgresql":
+                cursor.execute("""
+                    SELECT te.id, te.tracking_token, te.event_type, te.ip_address, 
+                           te.user_agent, te.country, te.city, te.timestamp, te.status,
+                           tl.recipient_email, tl.original_url, c.name as campaign_name
+                    FROM tracking_events te
+                    LEFT JOIN tracking_links tl ON te.tracking_token = tl.tracking_token
+                    LEFT JOIN campaigns c ON te.campaign_id = c.id
+                    WHERE te.user_id = %s
+                    ORDER BY te.timestamp DESC
+                    LIMIT 1000
+                """, (user_id,))
+            else:
+                cursor.execute("""
+                    SELECT te.id, te.tracking_token, te.event_type, te.ip_address, 
+                           te.user_agent, te.country, te.city, te.timestamp, te.status,
+                           tl.recipient_email, tl.original_url, c.name as campaign_name
+                    FROM tracking_events te
+                    LEFT JOIN tracking_links tl ON te.tracking_token = tl.tracking_token
+                    LEFT JOIN campaigns c ON te.campaign_id = c.id
+                    WHERE te.user_id = ?
+                    ORDER BY te.timestamp DESC
+                    LIMIT 1000
+                """, (user_id,))
+        
+        events = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        tracking_events = []
+        for event in events:
+            tracking_events.append({
+                'id': event[0],
+                'tracking_id': event[1],
+                'event_type': event[2],
+                'ip_address': event[3],
+                'user_agent': event[4],
+                'country': event[5] or 'Unknown',
+                'city': event[6] or 'Unknown',
+                'timestamp': event[7],
+                'status': event[8] or 'processed',
+                'email': event[9] or 'N/A',
+                'original_url': event[10],
+                'campaign_name': event[11] or 'Default Campaign'
+            })
+        
+        return jsonify({
+            'success': True,
+            'events': tracking_events
+        })
+        
+    except Exception as e:
+        print(f"Get tracking events error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch tracking events'}), 500
 
 
 @app.route("/api/debug_auth")
